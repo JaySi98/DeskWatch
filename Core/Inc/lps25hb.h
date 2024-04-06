@@ -20,11 +20,11 @@ extern I2C_HandleTypeDef* lps25hb_i2c;
 // I2C timeout
 #define LPS25HB_TIMEOUT 100
 
-HAL_StatusTypeDef lps25hb_init(I2C_HandleTypeDef *hi2c);
+HAL_StatusTypeDef LPS25HB_Init(I2C_HandleTypeDef *hi2c);
 
-float lps25hb_read_temp(void);
-float lps25hb_read_pressure(void);
-void lps25hb_set_calib(uint16_t value);
+float LPS25HB_Get_Temp(void);
+float LPS25HB_Get_Pressure(void);
+void  LPS25HB_Set_Calib(uint16_t value);
 
 
 #ifdef __cplusplus

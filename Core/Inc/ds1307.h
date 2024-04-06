@@ -19,7 +19,6 @@ extern I2C_HandleTypeDef* ds1307_i2c;
 // I2C timeout
 #define DS1307_TIMEOUT		100
 
-
 typedef enum DS1307_SQW_Rate
 {
 	DS1307_1HZ,
@@ -36,29 +35,33 @@ typedef enum DS1307_SQW_Enable
 
 void DS1307_Init(I2C_HandleTypeDef *hi2c);
 
-void DS1307_SetClockHalt(uint8_t halt);
-void DS1307_SetEnableSquareWave(DS1307_SQW_Enable mode);
-void DS1307_SetInterruptRate(DS1307_SQW_Rate rate);
+void DS1307_Set_ClockHalt(uint8_t halt);
+void DS1307_Set_EnableSquareWave(DS1307_SQW_Enable mode);
+void DS1307_Set_InterruptRate(DS1307_SQW_Rate rate);
 
-void DS1307_SetDayOfWeek(uint8_t dow);
-void DS1307_SetDate(uint8_t date);
-void DS1307_SetMonth(uint8_t month);
-void DS1307_SetYear(uint16_t year);
-void DS1307_SetHour(uint8_t hour_24mode);
-void DS1307_SetMinute(uint8_t minute);
-void DS1307_SetSecond(uint8_t second);
-void DS1307_SetTimeZone(int8_t hr, uint8_t min);
+void DS1307_Set_DayOfWeek(uint8_t dow);
+void DS1307_Set_Date(uint8_t date);
+void DS1307_Set_Month(uint8_t month);
+void DS1307_Set_Year(uint16_t year);
+void DS1307_Set_Hour(uint8_t hour_24mode);
+void DS1307_Set_Minute(uint8_t minute);
+void DS1307_Set_Second(uint8_t second);
+void DS1307_Set_TimeZone(int8_t hr, uint8_t min);
 
-uint8_t  DS1307_GetClockHalt(void);
-uint8_t  DS1307_GetDayOfWeek(void);
-uint8_t  DS1307_GetDate(void);
-uint8_t  DS1307_GetMonth(void);
-uint16_t DS1307_GetYear(void);
-uint8_t  DS1307_GetHour(void);
-uint8_t  DS1307_GetMinute(void);
-uint8_t  DS1307_GetSecond(void);
-int8_t   DS1307_GetTimeZoneHour(void);
-uint8_t  DS1307_GetTimeZoneMin(void);
+uint8_t  DS1307_Get_ClockHalt(void);
+uint8_t  DS1307_Get_DayOfWeek(void);
+uint8_t  DS1307_Get_Date(void);
+uint8_t  DS1307_Get_Month(void);
+uint16_t DS1307_Get_Year(void);
+uint8_t  DS1307_Get_Hour(void);
+uint8_t  DS1307_Get_Minute(void);
+uint8_t  DS1307_Get_Second(void);
+int8_t   DS1307_Get_TimeZoneHour(void);
+uint8_t  DS1307_Get_TimeZoneMin(void);
+
+HAL_StatusTypeDef DS1307_Write_RAM(uint8_t addr, const void* data, uint32_t size);
+HAL_StatusTypeDef DS1307_Read_RAM(uint8_t addr, void* data, uint32_t size);
+
 
 #ifdef __cplusplus
 }

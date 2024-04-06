@@ -30,10 +30,14 @@
 
 #include "ds1307.h"
 #include "lps25hb.h"
+#include "ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+
+// - DS1307  - hal i2c results
+// - LPS25HB - hal i2c results
 
 /* USER CODE END PTD */
 
@@ -107,44 +111,42 @@ int main(void)
   /* USER CODE BEGIN 2 */
   const char* DAYS_OF_WEEK[7] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
   DS1307_Init(&hi2c1);
-//  DS1307_SetTimeZone(+8, 00);
-//  DS1307_SetDate(25);
-//  DS1307_SetMonth(3);
-//  DS1307_SetYear(2024);
-//  DS1307_SetDayOfWeek(1);
-//  DS1307_SetHour(18);
-//  DS1307_SetMinute(18);
+//  DS1307_Set_TimeZone(+8, 00);
+//  DS1307_Set_Date(25);
+//  DS1307_Set_Month(3);
+//  DS1307_Set_Year(2024);
+//  DS1307_Set_DayOfWeek(1);
+//  DS1307_Set_Hour(18);
+//  DS1307_Set_Minute(58);
 //  DS1307_SetSecond(00);
 
-  lps25hb_init(&hi2c1);
+  LPS25HB_Init(&hi2c1);
   const float h = 138;
-  lps25hb_set_calib(208);
+  LPS25HB_Set_Calib(208);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	uint8_t date = DS1307_GetDate();
-	uint8_t month = DS1307_GetMonth();
-	uint16_t year = DS1307_GetYear();
-	uint8_t dow = DS1307_GetDayOfWeek();
-	uint8_t hour = DS1307_GetHour();
-	uint8_t minute = DS1307_GetMinute();
-	uint8_t second = DS1307_GetSecond();
+	uint8_t date   = DS1307_Get_Date();
+	uint8_t month  = DS1307_Get_Month();
+	uint16_t year  = DS1307_Get_Year();
+	uint8_t dow    = DS1307_Get_DayOfWeek();
+	uint8_t hour   = DS1307_Get_Hour();
+	uint8_t minute = DS1307_Get_Minute();
+	uint8_t second = DS1307_Get_Second();
 //	int8_t zone_hr = DS1307_GetTimeZoneHour();
 //	uint8_t zone_min = DS1307_GetTimeZoneMin();
 	printf("%04d-%02d-%02d %02d:%02d:%02d %s\n",
 			year, month, date, hour, minute, second, DAYS_OF_WEEK[dow]);
 
-
-	  float temp = lps25hb_read_temp();
-	  float p = lps25hb_read_pressure();	// cisnienie bezwzględne
-	  float p0 = p * exp(0.034162608734308 * h / (temp+ 273.15)); // cisnienie względne
-	  printf("T = %.1f*C\n", temp);
-	  printf("p = %.1f hPa\n", p);
-	  printf("p0 = %.1f hPa\n\n", p0);
-
+//	float temp = LPS25HB_Get_Temp();
+//	float p    = LPS25HB_Get_Pressure();	// cisnienie bezwzględne
+//	float p0   = p * exp(0.034162608734308 * h / (temp+ 273.15)); // cisnienie względne
+//	printf("T = %.1f*C\n", temp);
+//	printf("p = %.1f hPa\n", p);
+//	printf("p0 = %.1f hPa\n\n", p0);
 
 	HAL_Delay(1000);
     /* USER CODE END WHILE */

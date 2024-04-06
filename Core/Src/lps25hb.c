@@ -35,7 +35,7 @@ I2C_HandleTypeDef* lps25hb_i2c;
 
 // static functions
 // ----------------------------------------------------------------------------
-static uint8_t lps_read_reg(uint8_t reg)
+static uint8_t LPS25HB_Read_Reg(uint8_t reg)
 {
     uint8_t value = 0;
     HAL_I2C_Mem_Read(lps25hb_i2c, LPS25HB_ADDR, reg, 1, &value, sizeof(value), LPS25HB_TIMEOUT);
@@ -43,7 +43,7 @@ static uint8_t lps_read_reg(uint8_t reg)
     return value;
 }
 
-static void lps_write_reg(uint8_t reg, uint8_t value)
+static void LPS25HB_Write_Reg(uint8_t reg, uint8_t value)
 {
     HAL_I2C_Mem_Write(lps25hb_i2c, LPS25HB_ADDR, reg, 1, &value, sizeof(value), LPS25HB_TIMEOUT);
 }
@@ -51,17 +51,17 @@ static void lps_write_reg(uint8_t reg, uint8_t value)
 
 // lib functions
 // ----------------------------------------------------------------------------
-HAL_StatusTypeDef lps25hb_init(I2C_HandleTypeDef *hi2c)
+HAL_StatusTypeDef LPS25HB_Init(I2C_HandleTypeDef *hi2c)
 {
 	lps25hb_i2c = hi2c;
-    if (lps_read_reg(LPS25HB_WHO_AM_I) != 0xBD)
+    if (LPS25HB_Read_Reg(LPS25HB_WHO_AM_I) != 0xBD)
          return HAL_ERROR;
 
-    lps_write_reg(LPS25HB_CTRL_REG1,  0xC0);
+    LPS25HB_Write_Reg(LPS25HB_CTRL_REG1,  0xC0);
     return HAL_OK;
 }
 
-float lps25hb_read_temp(void)
+float LPS25HB_Get_Temp(void)
 {
      int16_t temp;
 
@@ -71,7 +71,7 @@ float lps25hb_read_temp(void)
      return 42.5f + temp / 480.0f;
 }
 
-float lps25hb_read_pressure(void)
+float LPS25HB_Get_Pressure(void)
 {
      int32_t pressure = 0;
 
@@ -81,8 +81,8 @@ float lps25hb_read_pressure(void)
      return pressure / 4096.0f;
 }
 
-void lps25hb_set_calib(uint16_t value)
+void LPS25HB_Set_Calib(uint16_t value)
 {
-	lps_write_reg(LPS25HB_RPDS_L, value);
-	lps_write_reg(LPS25HB_RPDS_H, value >> 8);
+	LPS25HB_Write_Reg(LPS25HB_RPDS_L, value);
+	LPS25HB_Write_Reg(LPS25HB_RPDS_H, value >> 8);
 }

@@ -25,7 +25,11 @@ I2C_HandleTypeDef* ds1307_i2c;
 #define DS1307_REG_UTC_HR	0x08
 #define DS1307_REG_UTC_MIN	0x09
 #define DS1307_REG_CENT    	0x10
-#define DS1307_REG_RAM   	0x11
+
+// DS1307 RAM
+#define DS1307_RAM_START   	0x08
+#define DS1307_RAM_END   	0x3F
+
 
 // static functions
 // ----------------------------------------------------------------------------
@@ -58,120 +62,146 @@ static uint8_t DS1307_GetRegByte(uint8_t regAddr)
 void DS1307_Init(I2C_HandleTypeDef *hi2c)
 {
 	ds1307_i2c = hi2c;
-	DS1307_SetClockHalt(0);
+	DS1307_Set_ClockHalt(0);
 }
 
-void DS1307_SetClockHalt(uint8_t halt)
+void DS1307_Set_ClockHalt(uint8_t halt)
 {
 	uint8_t ch = (halt ? 1 << 7 : 0);
 	DS1307_SetRegByte(DS1307_REG_SECOND, ch | (DS1307_GetRegByte(DS1307_REG_SECOND) & 0x7f));
 }
 
 
-void DS1307_SetEnableSquareWave(DS1307_SQW_Enable mode)
+void DS1307_Set_EnableSquareWave(DS1307_SQW_Enable mode)
 {
 	uint8_t controlReg = DS1307_GetRegByte(DS1307_REG_CONTROL);
 	uint8_t newControlReg = (controlReg & ~(1 << 4)) | ((mode & 1) << 4);
 	DS1307_SetRegByte(DS1307_REG_CONTROL, newControlReg);
 }
 
-void DS1307_SetInterruptRate(DS1307_SQW_Rate rate)
+void DS1307_Set_InterruptRate(DS1307_SQW_Rate rate)
 {
 	uint8_t controlReg = DS1307_GetRegByte(DS1307_REG_CONTROL);
 	uint8_t newControlReg = (controlReg & ~0x03) | rate;
 	DS1307_SetRegByte(DS1307_REG_CONTROL, newControlReg);
 }
 
-void DS1307_SetDayOfWeek(uint8_t dow)
+void DS1307_Set_DayOfWeek(uint8_t dow)
 {
 	DS1307_SetRegByte(DS1307_REG_DOW, encodeBCD(dow));
 }
 
-void DS1307_SetDate(uint8_t date)
+void DS1307_Set_Date(uint8_t date)
 {
 	DS1307_SetRegByte(DS1307_REG_DATE, encodeBCD(date));
 }
 
-void DS1307_SetMonth(uint8_t month)
+void DS1307_Set_Month(uint8_t month)
 {
 	DS1307_SetRegByte(DS1307_REG_MONTH, encodeBCD(month));
 }
 
-void DS1307_SetYear(uint16_t year)
+void DS1307_Set_Year(uint16_t year)
 {
 	DS1307_SetRegByte(DS1307_REG_CENT, year / 100);
 	DS1307_SetRegByte(DS1307_REG_YEAR, encodeBCD(year % 100));
 }
 
-void DS1307_SetHour(uint8_t hour_24mode)
+void DS1307_Set_Hour(uint8_t hour_24mode)
 {
 	DS1307_SetRegByte(DS1307_REG_HOUR, encodeBCD(hour_24mode & 0x3F));
 }
 
-void DS1307_SetMinute(uint8_t minute)
+void DS1307_Set_Minute(uint8_t minute)
 {
 	DS1307_SetRegByte(DS1307_REG_MINUTE, encodeBCD(minute));
 }
 
-void DS1307_SetSecond(uint8_t second)
+void DS1307_Set_Second(uint8_t second)
 {
-	uint8_t ch = DS1307_GetClockHalt();
+	uint8_t ch = DS1307_Get_ClockHalt();
 	DS1307_SetRegByte(DS1307_REG_SECOND, encodeBCD(second | ch));
 }
 
-void DS1307_SetTimeZone(int8_t hr, uint8_t min)
+void DS1307_Set_TimeZone(int8_t hr, uint8_t min)
 {
 	DS1307_SetRegByte(DS1307_REG_UTC_HR, hr);
 	DS1307_SetRegByte(DS1307_REG_UTC_MIN, min);
 }
 
-uint8_t DS1307_GetClockHalt(void)
+uint8_t DS1307_Get_ClockHalt(void)
 {
 	return (DS1307_GetRegByte(DS1307_REG_SECOND) & 0x80) >> 7;
 }
 
-uint8_t DS1307_GetDayOfWeek(void)
+uint8_t DS1307_Get_DayOfWeek(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_DOW));
 }
 
-uint8_t DS1307_GetDate(void)
+uint8_t DS1307_Get_Date(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_DATE));
 }
 
-uint8_t DS1307_GetMonth(void)
+uint8_t DS1307_Get_Month(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_MONTH));
 }
 
-uint16_t DS1307_GetYear(void)
+uint16_t DS1307_Get_Year(void)
 {
 	uint16_t cen = DS1307_GetRegByte(DS1307_REG_CENT) * 100;
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_YEAR)) + cen;
 }
 
-uint8_t DS1307_GetHour(void)
+uint8_t DS1307_Get_Hour(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_HOUR)  & 0x3F);
 }
 
-uint8_t DS1307_GetMinute(void)
+uint8_t DS1307_Get_Minute(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_MINUTE));
 }
 
-uint8_t DS1307_GetSecond(void)
+uint8_t DS1307_Get_Second(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_SECOND) & 0x7F);
 }
 
-int8_t DS1307_GetTimeZoneHour(void)
+int8_t DS1307_Get_TimeZoneHour(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_UTC_HR));
 }
 
-uint8_t DS1307_GetTimeZoneMin(void)
+uint8_t DS1307_Get_TimeZoneMin(void)
 {
 	return decodeBCD(DS1307_GetRegByte(DS1307_REG_UTC_MIN));
 }
+
+
+HAL_StatusTypeDef DS1307_Write_RAM(uint8_t addr, const void* data, uint32_t size)
+{
+	if(addr >= DS1307_RAM_START && addr <= DS1307_RAM_END)
+	{
+	    return HAL_I2C_Mem_Write(ds1307_i2c, DS1307_I2C_ADDR << 1, addr, 1, (void*)data, size, HAL_MAX_DELAY);
+	}
+	else
+	{
+		return HAL_ERROR;
+	}
+}
+
+HAL_StatusTypeDef DS1307_Read_RAM(uint8_t addr, void* data, uint32_t size)
+{
+	if(addr >= DS1307_RAM_START && addr <= DS1307_RAM_END)
+	{
+		return HAL_I2C_Mem_Read(ds1307_i2c, DS1307_I2C_ADDR << 1, addr, 1, data, size, HAL_MAX_DELAY);
+	}
+	else
+	{
+		return HAL_ERROR;
+	}
+}
+
