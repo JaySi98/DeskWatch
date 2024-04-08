@@ -22,6 +22,9 @@ extern I2C_HandleTypeDef* ssd1306_i2c;
 #define SSD1306_HEIGHT   64
 // display width in pixels
 #define SSD1306_WIDTH   128
+// X offsets
+#define SSD1306_X_OFFSET_LOWER 0
+#define SSD1306_X_OFFSET_UPPER 0
 
 // screen colors
 typedef enum {

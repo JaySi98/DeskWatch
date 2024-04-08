@@ -121,8 +121,11 @@ int main(void)
 //  DS1307_SetSecond(00);
 
   LPS25HB_Init(&hi2c1);
-  const float h = 138;
+  //const float h = 138;
   LPS25HB_Set_Calib(208);
+
+  SSD1306_Init(&hi2c1);
+  SSD1306_Fill(White);
   /* USER CODE END 2 */
 
   /* Infinite loop */
