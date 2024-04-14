@@ -31,6 +31,7 @@
 #include "ds1307.h"
 #include "lps25hb.h"
 #include "ssd1306.h"
+//#include "sh1106.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,6 +39,58 @@
 
 // - DS1307  - hal i2c results
 // - LPS25HB - hal i2c results
+
+void ssd1306_TestBorder() {
+	SSD1306_Fill(Black);
+
+    uint8_t x = 0;
+    uint8_t y = 0;
+    do {
+    	SSD1306_DrawPixel(x, y, Black);
+
+        if((y == 0) && (x < (SSD1306_WIDTH-1)))
+            x++;
+        else if((x == (SSD1306_WIDTH-1)) && (y < (SSD1306_HEIGHT-1)))
+            y++;
+        else if((y == (SSD1306_HEIGHT-1)) && (x > 0))
+            x--;
+        else
+            y--;
+
+        SSD1306_DrawPixel(x, y, White);
+        SSD1306_UpdateScreen();
+
+        HAL_Delay(5);
+    } while(x > 0 || y > 0);
+
+//    HAL_Delay(1000);
+}
+
+//void sh1106_TestBorder() {
+//	SH1106_Fill(Black);
+//
+//    uint8_t x = 0;
+//    uint8_t y = 0;
+//    do {
+//    	SH1106_DrawPixel(x, y, Black);
+//
+//        if((y == 0) && (x < (SH1106_WIDTH-1)))
+//            x++;
+//        else if((x == (SH1106_WIDTH-1)) && (y < (SH1106_HEIGHT-1)))
+//            y++;
+//        else if((y == (SH1106_HEIGHT-1)) && (x > 0))
+//            x--;
+//        else
+//            y--;
+//
+//        SH1106_DrawPixel(x, y, White);
+//        SH1106_UpdateScreen();
+//
+//        HAL_Delay(5);
+//    } while(x > 0 || y > 0);
+//
+////    HAL_Delay(1000);
+//}
 
 /* USER CODE END PTD */
 
@@ -123,26 +176,25 @@ int main(void)
   LPS25HB_Init(&hi2c1);
   //const float h = 138;
   LPS25HB_Set_Calib(208);
-
   SSD1306_Init(&hi2c1);
-  SSD1306_Fill(White);
+//  SH1106_Init(&hi2c1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	uint8_t date   = DS1307_Get_Date();
-	uint8_t month  = DS1307_Get_Month();
-	uint16_t year  = DS1307_Get_Year();
-	uint8_t dow    = DS1307_Get_DayOfWeek();
-	uint8_t hour   = DS1307_Get_Hour();
-	uint8_t minute = DS1307_Get_Minute();
-	uint8_t second = DS1307_Get_Second();
+//	uint8_t date   = DS1307_Get_Date();
+//	uint8_t month  = DS1307_Get_Month();
+//	uint16_t year  = DS1307_Get_Year();
+//	uint8_t dow    = DS1307_Get_DayOfWeek();
+//	uint8_t hour   = DS1307_Get_Hour();
+//	uint8_t minute = DS1307_Get_Minute();
+//	uint8_t second = DS1307_Get_Second();
 //	int8_t zone_hr = DS1307_GetTimeZoneHour();
 //	uint8_t zone_min = DS1307_GetTimeZoneMin();
-	printf("%04d-%02d-%02d %02d:%02d:%02d %s\n",
-			year, month, date, hour, minute, second, DAYS_OF_WEEK[dow]);
+//	printf("%04d-%02d-%02d %02d:%02d:%02d %s\n",
+//			year, month, date, hour, minute, second, DAYS_OF_WEEK[dow]);
 
 //	float temp = LPS25HB_Get_Temp();
 //	float p    = LPS25HB_Get_Pressure();	// cisnienie bezwzględne
@@ -151,7 +203,9 @@ int main(void)
 //	printf("p = %.1f hPa\n", p);
 //	printf("p0 = %.1f hPa\n\n", p0);
 
-	HAL_Delay(1000);
+	  ssd1306_TestBorder();
+//	  sh1106_TestBorder();
+//	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

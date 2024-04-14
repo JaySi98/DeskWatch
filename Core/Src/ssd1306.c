@@ -91,36 +91,43 @@ HAL_StatusTypeDef SSD1306_Init(I2C_HandleTypeDef *hi2c)
 
     // display off
     SSD1306_SetDisplayOn(0);
-    // set horizontal addressing mode
-    SSD1306_WriteCommand(COMM_MEM_ADRR_MODE);
-    SSD1306_WriteCommand(ADDR_HOR);
-    // set page start address for page addressing
-    SSD1306_WriteCommand(0XB0);
+
+	// set horizontal addressing mode
+	SSD1306_WriteCommand(COMM_MEM_ADRR_MODE);
+	SSD1306_WriteCommand(ADDR_HOR);
+	// set page start address for page addressing
+//	SSD1306_WriteCommand(0XB0);
     // set com scan direction
     SSD1306_WriteCommand(0XC8);
-    // set low and high column address
-    SSD1306_WriteCommand(0X00);
-    SSD1306_WriteCommand(0X10);
-    // set start line address
+	// set start line address
     SSD1306_WriteCommand(0X40);
+
+    // set low and high column address
+//	SSD1306_WriteCommand(0X04);
+//	SSD1306_WriteCommand(0X1F);
+	// set column address
+	SSD1306_WriteCommand(0X21);
+	SSD1306_WriteCommand(4);
+	SSD1306_WriteCommand(10);
+
     // set contrast
-    SSD1306_SetContrast(0xFF);
+    SSD1306_SetContrast(0x10);
     // Set segment re-map
     SSD1306_WriteCommand(0xA1);
     // set color
     SSD1306_WriteCommand(COMM_NORMAL_DISPL);
     // set multiplex ratio
     SSD1306_WriteCommand(0xA8);
+//    SSD1306_WriteCommand(63);
     // set lcd height
-    SSD1306_WriteCommand(0x3F);
+	SSD1306_WriteCommand(0x3F);
     // resume to ram content
     SSD1306_WriteCommand(COMM_ON_RESUME);
     //set display offset
     SSD1306_WriteCommand(COMM_DISPL_OFFSET);
     SSD1306_WriteCommand(0x00);
-    // set display clock
+    // set display clock - // set divide ratio
     SSD1306_WriteCommand(0xD5);
-    // set divide ratio
     SSD1306_WriteCommand(0xF0);
     // set pre-charge period
     SSD1306_WriteCommand(0xD9);
@@ -133,7 +140,7 @@ HAL_StatusTypeDef SSD1306_Init(I2C_HandleTypeDef *hi2c)
     SSD1306_WriteCommand(0x20);
     // dc-dc enable
     SSD1306_WriteCommand(0x8D);
-    SSD1306_WriteCommand(0x14);
+    SSD1306_WriteCommand(0 << 5 | 1 << 4 | 0x02);
 
     SSD1306_SetDisplayOn(1);
     SSD1306_Fill(Black);
@@ -150,8 +157,9 @@ void SSD1306_UpdateScreen(void)
 {
     for(uint8_t i = 0; i < SSD1306_HEIGHT/8; i++) {
     	SSD1306_WriteCommand(0xB0 + i); // Set the current RAM page address.
-    	SSD1306_WriteCommand(0x00 + SSD1306_X_OFFSET_LOWER);
-    	SSD1306_WriteCommand(0x10 + SSD1306_X_OFFSET_UPPER);
+    	SSD1306_WriteCommand(0x00 + 2);
+    	SSD1306_WriteCommand(0x10 + 0); //(2 >> 4)
+//    	SSD1306_WriteCommand(2);
     	SSD1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i],SSD1306_WIDTH);
     }
 }
@@ -177,7 +185,7 @@ void SSD1306_SetDisplayOn(const uint8_t on)
 
 uint8_t SSD1306_GetDisplayOn()
 {
-	return 0;
+	return ssd1306.DisplayOn;
 }
 
 void SSD1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_Color color)
