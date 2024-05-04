@@ -9,6 +9,7 @@
 #define INC_SSD1306_H_
 
 #include "main.h"
+#include "ssd1306_font.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -23,7 +24,7 @@ extern I2C_HandleTypeDef* ssd1306_i2c;
 // display width in pixels
 #define SSD1306_WIDTH   128
 // X offsets
-#define SSD1306_X_OFFSET_LOWER 0
+#define SSD1306_X_OFFSET_LOWER 2
 #define SSD1306_X_OFFSET_UPPER 0
 
 // screen colors
@@ -50,22 +51,22 @@ HAL_StatusTypeDef SSD1306_Init(I2C_HandleTypeDef *hi2c);
 void SSD1306_UpdateScreen(void);
 void SSD1306_SetContrast(const uint8_t value);
 void SSD1306_SetDisplayOn(const uint8_t on);
+void SSD1306_SetCursor(uint8_t x, uint8_t y);
 uint8_t SSD1306_GetDisplayOn();
 
 void SSD1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_Color color);
 void SSD1306_Fill(SSD1306_Color color);
-//char SSD1306_WriteChar(char ch, FontDef Font, SSD1306_Color color);
-//char SSD1306_WriteString(char* str, FontDef Font, SSD1306_Color color);
-//void SSD1306_FillCircle(uint8_t par_x,uint8_t par_y,uint8_t par_r,SSD1306_Color par_color);
-//void SSD1306_SetCursor(uint8_t x, uint8_t y);
-//void SSD1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color);
+void SSD1306_WriteChar(char ch, SSD1306_Font font, SSD1306_Color color);
+void SSD1306_WriteString(char* str, SSD1306_Font font, SSD1306_Color color);
 //void SSD1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep, SSD1306_Color color);
 //void SSD1306_DrawArcWithRadiusLine(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep, SSD1306_Color color);
 //void SSD1306_DrawCircle(uint8_t par_x, uint8_t par_y, uint8_t par_r, SSD1306_Color color);
-//void SSD1306_Polyline(const SSD1306_Vertex *par_vertex, uint16_t par_size, SSD1306_Color color);
-//void SSD1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color);
-//void SSD1306_FillRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color);
 //void SSD1306_DrawBitmap(uint8_t x, uint8_t y, const unsigned char* bitmap, uint8_t w, uint8_t h, SSD1306_Color color);
+//void SSD1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color);
+//void SSD1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color);
+//void SSD1306_Polyline(const SSD1306_Vertex *par_vertex, uint16_t par_size, SSD1306_Color color);
+//void SSD1306_FillCircle(uint8_t par_x,uint8_t par_y,uint8_t par_r,SSD1306_Color par_color);
+//void SSD1306_FillRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color);
 
 #ifdef __cplusplus
 }

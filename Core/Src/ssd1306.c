@@ -84,63 +84,37 @@ static HAL_StatusTypeDef ssd1306_FillBuffer(uint8_t* buf, uint32_t len)
 HAL_StatusTypeDef SSD1306_Init(I2C_HandleTypeDef *hi2c)
 {
 	ssd1306_i2c = hi2c;
+	HAL_StatusTypeDef result = HAL_OK;
+
+	const static uint8_t commands[] = {
+			0x20, 0x00,		// set horizontal addressing mode
+			0xB0,			// set page start address for page addressing
+			0xC8,			// set com scan direction
+			0x40,			// set start line address
+			0x04, 0x1F,		// set low and high column address
+			0x21, 4, 10,	// set column address
+			0x81, 0xFF,		// set contrast
+			0xA1,			// set segment re-map
+			0xA6,			// set color
+			0xA8,			// set multiplex ratio
+			0x3F,			// set lcd height
+			0xA4,			// resume to ram content
+			0xD3, 0x00,		// set display offset
+			0xD5, 0xF0,		// set display clock - set divide ratio
+			0xD9, 0x22,		// set pre-charge period
+			0xDA, 0x12,		// set com pins hardware configuation
+			0xDB, 0x20,		// set vcomh
+			0x8D, (0 << 5 | 1 << 4 | 0x02) // dc-dc enable
+	};
 
     // Wait for the screen to boot
-	// propably usless
     HAL_Delay(100);
-
-    // display off
     SSD1306_SetDisplayOn(0);
 
-	// set horizontal addressing mode
-	SSD1306_WriteCommand(COMM_MEM_ADRR_MODE);
-	SSD1306_WriteCommand(ADDR_HOR);
-	// set page start address for page addressing
-//	SSD1306_WriteCommand(0XB0);
-    // set com scan direction
-    SSD1306_WriteCommand(0XC8);
-	// set start line address
-    SSD1306_WriteCommand(0X40);
-
-    // set low and high column address
-//	SSD1306_WriteCommand(0X04);
-//	SSD1306_WriteCommand(0X1F);
-	// set column address
-	SSD1306_WriteCommand(0X21);
-	SSD1306_WriteCommand(4);
-	SSD1306_WriteCommand(10);
-
-    // set contrast
-    SSD1306_SetContrast(0x10);
-    // Set segment re-map
-    SSD1306_WriteCommand(0xA1);
-    // set color
-    SSD1306_WriteCommand(COMM_NORMAL_DISPL);
-    // set multiplex ratio
-    SSD1306_WriteCommand(0xA8);
-//    SSD1306_WriteCommand(63);
-    // set lcd height
-	SSD1306_WriteCommand(0x3F);
-    // resume to ram content
-    SSD1306_WriteCommand(COMM_ON_RESUME);
-    //set display offset
-    SSD1306_WriteCommand(COMM_DISPL_OFFSET);
-    SSD1306_WriteCommand(0x00);
-    // set display clock - // set divide ratio
-    SSD1306_WriteCommand(0xD5);
-    SSD1306_WriteCommand(0xF0);
-    // set pre-charge period
-    SSD1306_WriteCommand(0xD9);
-    SSD1306_WriteCommand(0x22);
-    // set com pins hardware configuation
-    SSD1306_WriteCommand(0xDA);
-    SSD1306_WriteCommand(0x12);
-    // set vcomh
-    SSD1306_WriteCommand(0xDB);
-    SSD1306_WriteCommand(0x20);
-    // dc-dc enable
-    SSD1306_WriteCommand(0x8D);
-    SSD1306_WriteCommand(0 << 5 | 1 << 4 | 0x02);
+    for(int i = 0; i < sizeof(commands)/sizeof(commands[0]); i++)
+    {
+    	result = SSD1306_WriteCommand(commands[i]);
+    }
 
     SSD1306_SetDisplayOn(1);
     SSD1306_Fill(Black);
@@ -150,16 +124,15 @@ HAL_StatusTypeDef SSD1306_Init(I2C_HandleTypeDef *hi2c)
     ssd1306.CurrentY = 0;
     ssd1306.Initialized = 1;
 
-	return HAL_OK;
+	return result;
 }
 
 void SSD1306_UpdateScreen(void)
 {
     for(uint8_t i = 0; i < SSD1306_HEIGHT/8; i++) {
     	SSD1306_WriteCommand(0xB0 + i); // Set the current RAM page address.
-    	SSD1306_WriteCommand(0x00 + 2);
-    	SSD1306_WriteCommand(0x10 + 0); //(2 >> 4)
-//    	SSD1306_WriteCommand(2);
+    	SSD1306_WriteCommand(0x00 + SSD1306_X_OFFSET_LOWER);
+    	SSD1306_WriteCommand(0x10 + SSD1306_X_OFFSET_UPPER);
     	SSD1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i],SSD1306_WIDTH);
     }
 }
@@ -188,17 +161,28 @@ uint8_t SSD1306_GetDisplayOn()
 	return ssd1306.DisplayOn;
 }
 
+void SSD1306_SetCursor(uint8_t x, uint8_t y)
+{
+	if((x >= 0 && x < SSD1306_WIDTH) && (y >= 0 && y < SSD1306_HEIGHT))
+	{
+		ssd1306.CurrentX = x;
+		ssd1306.CurrentY = y;
+	}
+}
+
 void SSD1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_Color color)
 {
+	// boundary check
     if(x >= SSD1306_WIDTH || y >= SSD1306_HEIGHT) {
-        // Don't write outside the buffer
         return;
     }
 
-    // Draw in the right color
-    if(color == White) {
+    if(color == White)
+    {
         SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
-    } else {
+    }
+    else
+    {
         SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] &= ~(1 << (y % 8));
     }
 }
@@ -208,14 +192,46 @@ void SSD1306_Fill(SSD1306_Color color)
 	memset(SSD1306_Buffer, (color == Black) ? 0x00 : 0xFF, sizeof(SSD1306_Buffer));
 }
 
-//char SSD1306_WriteChar(char ch, FontDef Font, SSD1306_Color color);
-//char SSD1306_WriteString(char* str, FontDef Font, SSD1306_Color color);
+void SSD1306_WriteChar(char ch, SSD1306_Font font, SSD1306_Color color)
+{
+	   uint32_t i, b, j;
 
-//void SSD1306_SetCursor(uint8_t x, uint8_t y)
-//{
-//
-//}
-//
+	    // Check if character is valid
+	    if (ch < 32 || ch > 126)
+	        return;
+
+	    // Check remaining space on current line
+	    if (SSD1306_WIDTH < (ssd1306.CurrentX + font.Width) ||
+	        SSD1306_HEIGHT < (ssd1306.CurrentY + font.Height))
+	    {
+	        // Not enough space on current line
+	        return;
+	    }
+
+	    // Use the font to write
+	    for(i = 0; i < font.Height; i++) {
+	        b = font.Data[(ch - 32) * font.Height + i];
+	        for(j = 0; j < font.Width; j++) {
+	            if((b << j) & 0x8000)  {
+	            	SSD1306_DrawPixel(ssd1306.CurrentX + j, (ssd1306.CurrentY + i), (SSD1306_Color) color);
+	            } else {
+	            	SSD1306_DrawPixel(ssd1306.CurrentX + j, (ssd1306.CurrentY + i), (SSD1306_Color)!color);
+	            }
+	        }
+	    }
+
+	    // The current space is now taken
+	    ssd1306.CurrentX += font.Width;
+}
+
+void SSD1306_WriteString(char* str, SSD1306_Font font, SSD1306_Color color)
+{
+    while (*str) {
+    	SSD1306_WriteChar(*str, font, color);
+        str++;
+    }
+}
+
 //void SSD1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_Color color)
 //{
 //

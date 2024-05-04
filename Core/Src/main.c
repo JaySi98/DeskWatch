@@ -31,15 +31,11 @@
 #include "ds1307.h"
 #include "lps25hb.h"
 #include "ssd1306.h"
-//#include "sh1106.h"
+#include "ssd1306_font.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
-// - DS1307  - hal i2c results
-// - LPS25HB - hal i2c results
-
 void ssd1306_TestBorder() {
 	SSD1306_Fill(Black);
 
@@ -62,35 +58,62 @@ void ssd1306_TestBorder() {
 
         HAL_Delay(5);
     } while(x > 0 || y > 0);
-
-//    HAL_Delay(1000);
 }
 
-//void sh1106_TestBorder() {
-//	SH1106_Fill(Black);
-//
-//    uint8_t x = 0;
-//    uint8_t y = 0;
-//    do {
-//    	SH1106_DrawPixel(x, y, Black);
-//
-//        if((y == 0) && (x < (SH1106_WIDTH-1)))
-//            x++;
-//        else if((x == (SH1106_WIDTH-1)) && (y < (SH1106_HEIGHT-1)))
-//            y++;
-//        else if((y == (SH1106_HEIGHT-1)) && (x > 0))
-//            x--;
-//        else
-//            y--;
-//
-//        SH1106_DrawPixel(x, y, White);
-//        SH1106_UpdateScreen();
-//
-//        HAL_Delay(5);
-//    } while(x > 0 || y > 0);
-//
-////    HAL_Delay(1000);
-//}
+void ssd1306_TestFonts1() {
+    uint8_t y = 0;
+    SSD1306_Fill(Black);
+
+    #ifdef SSD1306_INCLUDE_FONT_16x26
+    SSD1306_SetCursor(2, y);
+    SSD1306_WriteString("Font 16x26", Font_16x26, White);
+    y += 26;
+    #endif
+
+    #ifdef SSD1306_INCLUDE_FONT_11x18
+    SSD1306_SetCursor(2, y);
+    SSD1306_WriteString("Font 11x18", Font_11x18, White);
+    y += 18;
+    #endif
+
+    #ifdef SSD1306_INCLUDE_FONT_7x10
+    SSD1306_SetCursor(2, y);
+    SSD1306_WriteString("Font 7x10", Font_7x10, White);
+    y += 10;
+    #endif
+
+    #ifdef SSD1306_INCLUDE_FONT_6x8
+    SSD1306_SetCursor(2, y);
+    SSD1306_WriteString("Font 6x8", Font_6x8, White);
+    #endif
+
+    SSD1306_UpdateScreen();
+}
+
+/*
+ * This test shows how an 128x64 px OLED can replace a 0802 LCD.
+ */
+void ssd1306_TestFonts2() {
+#ifdef SSD1306_INCLUDE_FONT_16x24
+
+    SSD1306_Fill(Black);
+
+    SSD1306_SetCursor(0, 4);
+    SSD1306_WriteString("18.092.5", Font_16x24, White);
+    SSD1306_SetCursor(0, 4+24+8);
+    SSD1306_WriteString("RIT+1000", Font_16x24, White);
+
+    // underline
+//    uint8_t x1, y1, x2, y2;
+//    x1 = 6*16;
+//    y1 = 4+24+8+24;
+//    x2 = x1+16;
+//    y2 = y1+2;
+//    SSD1306_FillRectangle(x1, y1, x2, y2, White);
+
+    SSD1306_UpdateScreen();
+#endif
+}
 
 /* USER CODE END PTD */
 
@@ -174,39 +197,44 @@ int main(void)
 //  DS1307_SetSecond(00);
 
   LPS25HB_Init(&hi2c1);
-  //const float h = 138;
+  const float h = 138;
   LPS25HB_Set_Calib(208);
   SSD1306_Init(&hi2c1);
-//  SH1106_Init(&hi2c1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	uint8_t date   = DS1307_Get_Date();
-//	uint8_t month  = DS1307_Get_Month();
-//	uint16_t year  = DS1307_Get_Year();
-//	uint8_t dow    = DS1307_Get_DayOfWeek();
-//	uint8_t hour   = DS1307_Get_Hour();
-//	uint8_t minute = DS1307_Get_Minute();
-//	uint8_t second = DS1307_Get_Second();
-//	int8_t zone_hr = DS1307_GetTimeZoneHour();
-//	uint8_t zone_min = DS1307_GetTimeZoneMin();
+	uint8_t date   = DS1307_Get_Date();
+	uint8_t month  = DS1307_Get_Month();
+	uint16_t year  = DS1307_Get_Year();
+	uint8_t dow    = DS1307_Get_DayOfWeek();
+	uint8_t hour   = DS1307_Get_Hour();
+	uint8_t minute = DS1307_Get_Minute();
+	uint8_t second = DS1307_Get_Second();
+//	int8_t zone_hr = DS1307_Get_TimeZoneHour();
+//	uint8_t zone_min = DS1307_Get_TimeZoneMin();
 //	printf("%04d-%02d-%02d %02d:%02d:%02d %s\n",
 //			year, month, date, hour, minute, second, DAYS_OF_WEEK[dow]);
 
-//	float temp = LPS25HB_Get_Temp();
-//	float p    = LPS25HB_Get_Pressure();	// cisnienie bezwzględne
-//	float p0   = p * exp(0.034162608734308 * h / (temp+ 273.15)); // cisnienie względne
+	float temp = LPS25HB_Get_Temp();
+	float p    = LPS25HB_Get_Pressure();	// cisnienie bezwzględne
+	float p0   = p * exp(0.034162608734308 * h / (temp+ 273.15)); // cisnienie względne
 //	printf("T = %.1f*C\n", temp);
 //	printf("p = %.1f hPa\n", p);
 //	printf("p0 = %.1f hPa\n\n", p0);
 
-	  ssd1306_TestBorder();
-//	  sh1106_TestBorder();
+//	  ssd1306_TestBorder();
+//	  ssd1306_TestFonts1();
 //	  HAL_Delay(1000);
-    /* USER CODE END WHILE */
+//	  ssd1306_TestFonts2();
+//	  HAL_Delay(1000);
+
+	    SSD1306_SetCursor(2, 2);
+	    SSD1306_WriteString("Font 16x26", Font_16x26, White);
+
+	  /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
