@@ -185,16 +185,16 @@ int main(void)
   MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
-  const char* DAYS_OF_WEEK[7] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+  char* DAYS_OF_WEEK[7] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
   DS1307_Init(&hi2c1);
 //  DS1307_Set_TimeZone(+8, 00);
-//  DS1307_Set_Date(25);
-//  DS1307_Set_Month(3);
+//  DS1307_Set_Date(11);
+//  DS1307_Set_Month(5);
 //  DS1307_Set_Year(2024);
-//  DS1307_Set_DayOfWeek(1);
-//  DS1307_Set_Hour(18);
-//  DS1307_Set_Minute(58);
-//  DS1307_SetSecond(00);
+//  DS1307_Set_DayOfWeek(6);
+//  DS1307_Set_Hour(14);
+//  DS1307_Set_Minute(25);
+//  DS1307_Set_Second(00);
 
   LPS25HB_Init(&hi2c1);
   const float h = 138;
@@ -204,6 +204,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  char buffer[21];
   while (1)
   {
 	uint8_t date   = DS1307_Get_Date();
@@ -212,28 +213,34 @@ int main(void)
 	uint8_t dow    = DS1307_Get_DayOfWeek();
 	uint8_t hour   = DS1307_Get_Hour();
 	uint8_t minute = DS1307_Get_Minute();
-	uint8_t second = DS1307_Get_Second();
-//	int8_t zone_hr = DS1307_Get_TimeZoneHour();
-//	uint8_t zone_min = DS1307_Get_TimeZoneMin();
-//	printf("%04d-%02d-%02d %02d:%02d:%02d %s\n",
-//			year, month, date, hour, minute, second, DAYS_OF_WEEK[dow]);
+//	uint8_t second = DS1307_Get_Second();
 
 	float temp = LPS25HB_Get_Temp();
 	float p    = LPS25HB_Get_Pressure();	// cisnienie bezwzględne
 	float p0   = p * exp(0.034162608734308 * h / (temp+ 273.15)); // cisnienie względne
-//	printf("T = %.1f*C\n", temp);
-//	printf("p = %.1f hPa\n", p);
-//	printf("p0 = %.1f hPa\n\n", p0);
 
-//	  ssd1306_TestBorder();
-//	  ssd1306_TestFonts1();
-//	  HAL_Delay(1000);
-//	  ssd1306_TestFonts2();
-//	  HAL_Delay(1000);
+	// line 1
+	sprintf(buffer, "%04d-%02d-%02d %s %02d:%02d", year, month, date, DAYS_OF_WEEK[dow], hour, minute);
+	SSD1306_SetCursor(0, 0);
+    SSD1306_WriteString(buffer, Font_6x8, White);
 
-	    SSD1306_SetCursor(2, 2);
-	    SSD1306_WriteString("Font 16x26", Font_16x26, White);
+    // line 2
+	sprintf(buffer, "p0: %i hPa", (int)p0);
+    SSD1306_SetCursor(0, 9);
+    SSD1306_WriteString(buffer, Font_6x8, White);
 
+    // line 3
+	sprintf(buffer, "p:  %i hPa", (int)p);
+    SSD1306_SetCursor(0, 18);
+    SSD1306_WriteString(buffer, Font_6x8, White);
+
+    // line 4
+	sprintf(buffer, "T:  %.1f*C", temp);
+    SSD1306_SetCursor(0, 27);
+    SSD1306_WriteString(buffer, Font_6x8, White);
+
+	SSD1306_UpdateScreen();
+	HAL_Delay(1000);
 	  /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
