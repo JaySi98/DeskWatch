@@ -5,7 +5,7 @@
  *      Author: kuba
  */
 
-#include "wire.h"
+#include "ds18b20/wire.h"
 #include "gpio.h"
 #include "tim.h"
 #include "usart.h"

@@ -5,7 +5,7 @@
  *      Author: kuba
  */
 
-#include "ssd1306_font.h"
+#include "ssd1306/ssd1306_font.h"
 
 
 

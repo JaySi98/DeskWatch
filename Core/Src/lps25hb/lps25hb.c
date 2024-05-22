@@ -5,7 +5,7 @@
  *      Author: kuba
  */
 
-#include "lps25hb.h"
+#include "lps25hb/lps25hb.h"
 
 
 // I2C handler

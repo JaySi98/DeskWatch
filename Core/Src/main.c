@@ -29,11 +29,11 @@
 #include <math.h>
 #include <string.h>
 
-#include "ds1307.h"
-#include "lps25hb.h"
-#include "ds18b20.h"
-#include "ssd1306.h"
-#include "ssd1306_font.h"
+#include "ds1307/ds1307.h"
+#include "lps25hb/lps25hb.h"
+#include "ds18b20/ds18b20.h"
+#include "ssd1306/ssd1306.h"
+#include "ssd1306/ssd1306_font.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -182,11 +182,6 @@ int main(void)
 
 	SSD1306_UpdateScreen();
 	HAL_Delay(1000);
-
-//	ssd1306_TestFonts1();
-//	HAL_Delay(1000);
-//	ssd1306_TestFonts2();
-//	HAL_Delay(1000);
 
     /* USER CODE END WHILE */
 

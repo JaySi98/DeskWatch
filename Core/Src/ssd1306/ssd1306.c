@@ -6,7 +6,7 @@
  */
 
 
-#include "ssd1306.h"
+#include "ssd1306/ssd1306.h"
 #include <string.h>  // For memcpy
 
 // SSD1306 I2C address

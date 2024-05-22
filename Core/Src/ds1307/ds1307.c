@@ -5,7 +5,7 @@
  *      Author: kuba
  */
 
-#include "ds1307.h"
+#include "ds1307/ds1307.h"
 
 // I2C handler
 I2C_HandleTypeDef* ds1307_i2c;

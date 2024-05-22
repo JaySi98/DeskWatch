@@ -6,8 +6,8 @@
  */
 
 #include <string.h>
-#include "ds18b20.h"
-#include "wire.h"
+#include "ds18b20/ds18b20.h"
+#include "ds18b20/wire.h"
 
 #define DS18B20_SCRATCHPAD_SIZE    9
 
