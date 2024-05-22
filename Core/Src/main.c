@@ -38,85 +38,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-void ssd1306_TestBorder() {
-	SSD1306_Fill(Black);
-
-    uint8_t x = 0;
-    uint8_t y = 0;
-    do {
-    	SSD1306_DrawPixel(x, y, Black);
-
-        if((y == 0) && (x < (SSD1306_WIDTH-1)))
-            x++;
-        else if((x == (SSD1306_WIDTH-1)) && (y < (SSD1306_HEIGHT-1)))
-            y++;
-        else if((y == (SSD1306_HEIGHT-1)) && (x > 0))
-            x--;
-        else
-            y--;
-
-        SSD1306_DrawPixel(x, y, White);
-        SSD1306_UpdateScreen();
-
-        HAL_Delay(5);
-    } while(x > 0 || y > 0);
-}
-
-void ssd1306_TestFonts1() {
-    uint8_t y = 0;
-    SSD1306_Fill(Black);
-
-    #ifdef SSD1306_INCLUDE_FONT_16x26
-    SSD1306_SetCursor(2, y);
-    SSD1306_WriteString("Font 16x26", Font_16x26, White);
-    y += 26;
-    #endif
-
-    #ifdef SSD1306_INCLUDE_FONT_11x18
-    SSD1306_SetCursor(2, y);
-    SSD1306_WriteString("Font 11x18", Font_11x18, White);
-    y += 18;
-    #endif
-
-    #ifdef SSD1306_INCLUDE_FONT_7x10
-    SSD1306_SetCursor(2, y);
-    SSD1306_WriteString("Font 7x10", Font_7x10, White);
-    y += 10;
-    #endif
-
-    #ifdef SSD1306_INCLUDE_FONT_6x8
-    SSD1306_SetCursor(2, y);
-    SSD1306_WriteString("Font 6x8", Font_6x8, White);
-    #endif
-
-    SSD1306_UpdateScreen();
-}
-
-/*
- * This test shows how an 128x64 px OLED can replace a 0802 LCD.
- */
-void ssd1306_TestFonts2() {
-#ifdef SSD1306_INCLUDE_FONT_16x24
-
-    SSD1306_Fill(Black);
-
-    SSD1306_SetCursor(0, 4);
-    SSD1306_WriteString("18.092.5", Font_16x24, White);
-    SSD1306_SetCursor(0, 4+24+8);
-    SSD1306_WriteString("RIT+1000", Font_16x24, White);
-
-    // underline
-//    uint8_t x1, y1, x2, y2;
-//    x1 = 6*16;
-//    y1 = 4+24+8+24;
-//    x2 = x1+16;
-//    y2 = y1+2;
-//    SSD1306_FillRectangle(x1, y1, x2, y2, White);
-
-    SSD1306_UpdateScreen();
-#endif
-}
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -143,16 +64,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int __io_putchar(int ch)
-{
-  if (ch == '\n') {
-    __io_putchar('\r');
-  }
-
-  HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, HAL_MAX_DELAY);
-
-  return 1;
-}
 
 volatile uint8_t mesure = 0;
 /* USER CODE END 0 */
