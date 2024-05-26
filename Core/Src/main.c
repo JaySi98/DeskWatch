@@ -26,14 +26,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
-#include <math.h>
-#include <string.h>
-
-#include "ds1307/ds1307.h"
-#include "lps25hb/lps25hb.h"
-#include "ds18b20/ds18b20.h"
 #include "ssd1306/ssd1306.h"
 #include "ssd1306/ssd1306_font.h"
+#include "data_controller/data_controller.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,8 +59,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-volatile uint8_t mesure = 0;
 /* USER CODE END 0 */
 
 /**
@@ -101,82 +94,40 @@ int main(void)
   MX_TIM10_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  char* DAYS_OF_WEEK[7] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-  DS1307_Init(&hi2c1);
-//  DS1307_Set_TimeZone(+8, 00);
-//  DS1307_Set_Date(11);
-//  DS1307_Set_Month(5);
-//  DS1307_Set_Year(2024);
-//  DS1307_Set_DayOfWeek(6);
-//  DS1307_Set_Hour(14);
-//  DS1307_Set_Minute(25);
-//  DS1307_Set_Second(00);
-
-  LPS25HB_Init(&hi2c1);
-  const float h = 138;
-  LPS25HB_Set_Calib(208);
   SSD1306_Init(&hi2c1);
-
-  if (ds18b20_init() != HAL_OK) {
-    Error_Handler();
-  }
-
+  dc_init(&hi2c1, &htim10, 208, 138);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   char buffer[21];
-  float temp2 = 0;
 
   while (1)
   {
-	uint8_t date   = DS1307_Get_Date();
-	uint8_t month  = DS1307_Get_Month();
-	uint16_t year  = DS1307_Get_Year();
-	uint8_t dow    = DS1307_Get_DayOfWeek();
-	uint8_t hour   = DS1307_Get_Hour();
-	uint8_t minute = DS1307_Get_Minute();
-//	uint8_t second = DS1307_Get_Second();
-
-	float temp = LPS25HB_Get_Temp();
-	float p    = LPS25HB_Get_Pressure();	// cisnienie bezwzględne
-	float p0   = p * exp(0.034162608734308 * h / (temp+ 273.15)); // cisnienie względne
-
-	ds18b20_start_measure(NULL);
-	HAL_TIM_Base_Start_IT(&htim10);
-	if(mesure == 1)
-	{
-		HAL_TIM_Base_Stop_IT(&htim10);
-		float temp = ds18b20_get_temp(NULL);
-		if(temp < 85.0)
-		{
-			temp2 = ds18b20_get_temp(NULL);
-		}
-	}
 
 	// line 1
-	sprintf(buffer, "%04d-%02d-%02d %s %02d:%02d", year, month, date, DAYS_OF_WEEK[dow], hour, minute);
+	dc_get_DS1307_date_time(buffer);
 	SSD1306_SetCursor(0, 0);
     SSD1306_WriteString(buffer, Font_6x8, White);
 
     // line 2
-	sprintf(buffer, "p0: %i hPa", (int)p0);
+	sprintf(buffer, "p0: %i hPa", (int)dc_get_LPS25HB_absolute_pressure());
     SSD1306_SetCursor(0, 9);
     SSD1306_WriteString(buffer, Font_6x8, White);
 
     // line 3
-	sprintf(buffer, "p:  %i hPa", (int)p);
+	sprintf(buffer, "p:  %i hPa", (int)dc_get_LPS25HB_relative_pressure());
     SSD1306_SetCursor(0, 18);
     SSD1306_WriteString(buffer, Font_6x8, White);
 
     // line 4
-	sprintf(buffer, "T1:  %.1f*C", temp);
+	sprintf(buffer, "T1:  %.1f*C", dc_get_LPS25HB_temp());
     SSD1306_SetCursor(0, 27);
     SSD1306_WriteString(buffer, Font_6x8, White);
 
     // line 5
-	sprintf(buffer, "T2:  %.1f*C", temp2);
-    SSD1306_SetCursor(0, 36);
+	sprintf(buffer, "T2:  %.1f*C", dc_get_ds18b20_temp());
+	SSD1306_SetCursor(0, 36);
 	SSD1306_WriteString(buffer, Font_6x8, White);
 	SSD1306_UpdateScreen();
 
@@ -237,13 +188,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  if (htim == &htim10) {
-//    HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  mesure = 1;
-  }
-}
+
 /* USER CODE END 4 */
 
 /**
